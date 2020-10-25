@@ -1,0 +1,23 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "node app with CLI to track employees in a MySQL DB",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samergain/Employee-Tracker.git"
+  },
+  "author": "Samer Saadoun",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samergain/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/samergain/Employee-Tracker#readme",
+  "dependencies": {
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
