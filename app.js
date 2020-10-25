@@ -59,7 +59,7 @@ function startApp() {
         }
     });
 }
-
+//////////ADDING DATA///////////
 function add() {
     inquirer.prompt(
         {
@@ -166,6 +166,87 @@ function addRole(){
 }
 
 function addEmployee() {
-
+    let empFirstName = "";
+    let empLastName = "";
+    let empRoleID = 0;
+    let empManagerID = 0;
+    connection.query("SELECT * FROM role", function(err,queryResults){
+        if (err) { throw err }
+        inquirer.prompt([
+            {
+                name: "firstName",
+                type: "input",
+                message: "What's the employee first name?"
+            },
+            {
+                name: "lastName",
+                type: "input",
+                message: "What's the employee last name?"
+            },
+            {
+                name: "role",
+                type: "list",
+                message: "What's the employee position?",
+                choices: function() {
+                    let listOfroles = [];
+                    for(let i=0; i< queryResults.length; i++)
+                    {listOfroles.push(queryResults[i].name);}
+                    return listOfroles;
+                }
+            }
+        ]).then(function(userAnswers){
+            
+            empFirstName = userAnswers.firstName;
+            empLastName = userAnswers.lastName;
+            //get the chosen dept id and store it in deptID
+            for(let i=0; i< queryResults.length; i++){
+                if(queryResults[i].name === userAnswers.role) {
+                    empRoleID = queryResults[i].id;
+                }
+            }
+            //now we have fName lName roleID, still need to assign a manager
+            connection.query(
+                "SELECT * FROM employee",
+                function(err,result){
+                    if(err) { throw err }
+                    inquirer.prompt({
+                        name: "setManager",
+                        type: "list",
+                        message: "Assign a manager to the new employee:",
+                        choices: function() {
+                            let listOfemployees = [];
+                            for(let i=0; i< result.length; i++)
+                            {listOfemployees.push(`${result[i].first_name} ${result[i].last_name}`);}
+                            return listOfemployees;
+                        }
+                    }).then(function(answer){
+                        let chosenAnswer = answer.setManager;
+                        let fullName = chosenAnswer.split(" ");
+                        console.log(fullName[0],"and the lastName is:",fullName[1]);
+                        for(let i=0; i<result.length; i++) {
+                            if(fullName[0] === result[i].first_name && fullName[1] === result[i].last_name) {
+                                empManagerID = result[i].id;
+                            }
+                        }
+                        //now we have all the employee info to push to DB
+                        connection.query("INSERT INTO employee SET ?", 
+                        {
+                            first_name: empFirstName,
+                            last_name: empLastName,
+                            role_id: empRoleID,
+                            manager_id: empManagerID
+                        }, 
+                        function(err){
+                            if(err) { console.log(err) }
+                            else {
+                                console.log(`${empFirstName} ${empLastName} has been added to DB.`);
+                                startApp();
+                            }
+                        });
+                    });
+                });
+        }); 
+    });
 }
 
+//////////VIEWING DATA///////////
