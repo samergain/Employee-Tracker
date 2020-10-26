@@ -13,15 +13,14 @@ const connection = mysql.createConnection({
     password: "DansPassword",
     database: "employeesDB"
 });
-connectDB();
+
+connection.connect(function(err){
+    if(err) { throw err}
+    console.log("connected to Employees DB.");
+});
+
 startApp();
 
-function connectDB(){
-        connection.connect(function(err){
-            if(err) { throw err}
-            console.log("connected to Employees DB.");
-        });     
-}
 
 function startApp() {
     inquirer.prompt(
@@ -108,6 +107,7 @@ function addDept() {
         connection.query("INSERT INTO department SET name=?",answer.depName,function(err){
             if (err) { throw err }
             console.log(`${answer.depName} department has been added to DB`);
+            connection.end();
             startApp();
         });
     });    
@@ -250,3 +250,119 @@ function addEmployee() {
 }
 
 //////////VIEWING DATA///////////
+function view() {
+    inquirer.prompt(
+        {
+            name: "viewOptions",
+            type: "list",
+            message: "What would you like to view?",
+            choices: [
+                {
+                    name: "employee",
+                    message: "employees"
+                },
+                {
+                    name: "role",
+                    message: "roles"
+                },
+                {
+                    name: "department",
+                    message: "departments"
+                }
+            ]
+        }
+    ).then(function(answer){
+        switch (answer.addOptions) {
+            case "employee":
+                viewEmployees();
+                break;
+            case "role":
+                viewRoles();
+                break;
+            case "department":
+                viewDepartments();
+                break;
+            default: break;
+        }
+    });
+}
+
+function viewEmployees(){
+        
+}
+function viewDepartments() {
+    
+}
+
+function viewRoles(){
+    
+}
+
+//////////UPDATING ROLE//////////
+function update() {
+    let chosenEmpID = 0;
+    let chosenRoleID = 0;
+    //get chosenEmpID
+    connection.query("SELECT * FROM employee",function(err,result){
+        if(err) { throw err }
+        inquirer.prompt(
+            {
+                name: "employee",
+                type: "list",
+                message: "Which employee has a new position?",
+                choices: function() {
+                    let listOfEmps = [];
+                    for (let i=0; i<result.length; i++) {
+                        listOfEmps.push(`${result[i].first_name} ${result[i].last_name}`);
+                    }
+                    return listOfEmps;
+                }
+            }
+        ).then(function(answer){
+            let fullName = answer.employee;
+            let fullNameSplit = fullName.split(" ");
+            console.log(fullNameSplit[0],"and the lastName is:",fullNameSplit[1]);
+            for (let i=0; i<result.length; i++) {
+                if(fullNameSplit[0] === result[i].first_name && fullNameSplit[1] === result[i].last_name) {
+                    chosenEmpID = result[i].id;
+                    console.log("employee id:", result[i].id);
+                }
+            }
+            //get chosenEmpID
+            connection.query("SELECT * FROM role",function(err,result){
+                if(err) { throw err }
+                inquirer.prompt(
+                    {
+                    name: "newRole",
+                    type: "list",
+                    message: "What's the new position?",
+                    choices: function() {
+                        let listOfRoles = [];
+                        for (let i=0; i<result.length; i++) {
+                            listOfRoles.push(result[i].name);
+                        }
+                        return listOfRoles;
+                    }
+                }).then(function(answer){
+                    for (let i=0; i < result.length; i++) {
+                        if (answer.newRole === result[i].name) {
+                            chosenRoleID = result[i].id;
+                        }
+                    }
+                    //update employee role
+                    connection.query("UPDATE employee SET ? WHERE ?",
+                    [
+                        { role_id: chosenRoleID }, 
+                        { id: chosenEmpID }
+                    ],
+                    function(err){
+                        if(err) { throw err; }
+                        console.log("New position updated"); 
+                        startApp();
+                    });
+                });
+            });        
+        });
+    });            
+}
+    
