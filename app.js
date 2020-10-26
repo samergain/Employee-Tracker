@@ -5,7 +5,7 @@
 
 const inquirer = require("inquirer");
 const mysql = require("mysql");
-const { allowedNodeEnvironmentFlags } = require("process");
+//const { allowedNodeEnvironmentFlags } = require("process");
 const connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -272,7 +272,7 @@ function view() {
             ]
         }
     ).then(function(answer){
-        switch (answer.addOptions) {
+        switch (answer.viewOptions) {
             case "employee":
                 viewEmployees();
                 break;
@@ -288,14 +288,26 @@ function view() {
 }
 
 function viewEmployees(){
-        
+        connection.query("select id,first_name,last_name from employee",function(err,result){
+            if(err) { throw err }
+            console.table(result);
+            startApp();
+        })
 }
 function viewDepartments() {
-    
+    connection.query("select * from department",function(err,result){
+        if(err) { throw err }
+        console.table(result);
+        startApp();
+    })
 }
 
 function viewRoles(){
-    
+    connection.query("select * from role",function(err,result){
+        if(err) { throw err }
+        console.table(result);
+        startApp();
+    })
 }
 
 //////////UPDATING ROLE//////////
