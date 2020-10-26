@@ -288,14 +288,16 @@ function view() {
 }
 
 function viewEmployees(){
-        connection.query("select id,first_name,last_name from employee",function(err,result){
+        connection.query(`select employee.first_name,employee.last_name, role.name Role, department.name Department
+        from employee,role,department
+        where employee.role_id = role.id and role.department_id = department.id`,function(err,result){
             if(err) { throw err }
             console.table(result);
             startApp();
         })
 }
 function viewDepartments() {
-    connection.query("select * from department",function(err,result){
+    connection.query("select name Department from department",function(err,result){
         if(err) { throw err }
         console.table(result);
         startApp();
@@ -303,7 +305,8 @@ function viewDepartments() {
 }
 
 function viewRoles(){
-    connection.query("select * from role",function(err,result){
+    connection.query(`select role.name Title, role.salary, department.name Department from role 
+    inner join department on role.department_id = department.id`,function(err,result){
         if(err) { throw err }
         console.table(result);
         startApp();
