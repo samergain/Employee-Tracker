@@ -32,11 +32,13 @@ function startApp() {
                 { name: "add",
                   message: "Add department/role/employee"},
                 { name: "view",
-                  message: "view department/role/employee"},
-                { name: "update",
-                  message: "update employee role"},
+                  message: "View department/role/employee"},
+                { name: "updateRole",
+                  message: "Update employee role"},
+                { name: "updateManager",
+                  message: "Update employee manager"},
                 { name: "exit",
-                  message: "exit"}
+                  message: "Exit"}
             ]
         }
     )
@@ -48,8 +50,11 @@ function startApp() {
             case "view":
                 view();
                 break;
-            case "update":
-                update();
+            case "updateRole":
+                updateRole();
+                break;
+            case "updateManager":
+                updateManager();
                 break;
             case "exit":
                 connection.end();
@@ -68,15 +73,15 @@ function add() {
             choices: [
                 {
                     name: "employee",
-                    message: "employee"
+                    message: "Employee"
                 },
                 {
                     name: "role",
-                    message: "role"
+                    message: "Role"
                 },
                 {
                     name: "department",
-                    message: "department"
+                    message: "Department"
                 }
             ]
         }
@@ -259,15 +264,15 @@ function view() {
             choices: [
                 {
                     name: "employee",
-                    message: "employees"
+                    message: "Employees"
                 },
                 {
                     name: "role",
-                    message: "roles"
+                    message: "Roles"
                 },
                 {
                     name: "department",
-                    message: "departments"
+                    message: "Departments"
                 }
             ]
         }
@@ -314,7 +319,7 @@ function viewRoles(){
 }
 
 //////////UPDATING ROLE//////////
-function update() {
+function updateRole() {
     let chosenEmpID = 0;
     let chosenRoleID = 0;
     //get chosenEmpID
@@ -380,4 +385,71 @@ function update() {
         });
     });            
 }
-    
+
+function updateManager() {
+    let chosenEmpID = 0;
+    let chosenManagerID = 0;
+    //get chosenEmpID
+    connection.query("SELECT * FROM employee",function(err,result){
+        if(err) { throw err }
+        inquirer.prompt(
+            {
+                name: "employee",
+                type: "list",
+                message: "Which employee has a new manager?",
+                choices: function() {
+                    let listOfEmps = [];
+                    for (let i=0; i<result.length; i++) {
+                        listOfEmps.push(`${result[i].first_name} ${result[i].last_name}`);
+                    }
+                    return listOfEmps;
+                }
+            }
+        ).then(function(answer){
+            let fullName = answer.employee;
+            let fullNameSplit = fullName.split(" ");
+            
+            for (let i=0; i<result.length; i++) {
+                if(fullNameSplit[0] === result[i].first_name && fullNameSplit[1] === result[i].last_name) {
+                    chosenEmpID = result[i].id;
+                }
+            }
+            //get chosenManagerID
+                inquirer.prompt(
+                    {
+                    name: "newManager",
+                    type: "list",
+                    message: "Who's the new manager?",
+                    choices: function() {
+                        let listOfEmps = [];
+                        for (let i=0; i<result.length; i++) {
+                            listOfEmps.push(`${result[i].first_name} ${result[i].last_name}`);
+                        }
+                        return listOfEmps;
+                    }
+                }).then(function(answer){
+                    let fullName = answer.newManager;
+                    let fullNameSplit = fullName.split(" ");
+                    for (let i=0; i<result.length; i++) {
+                        if(fullNameSplit[0] === result[i].first_name && fullNameSplit[1] === result[i].last_name) {
+                            chosenManagerID = result[i].id;
+                        }
+                    }
+                    //update employee Manager
+                    connection.query("UPDATE employee SET ? WHERE ?",
+                    [
+                        { manager_id: chosenManagerID }, 
+                        { id: chosenEmpID }
+                    ],
+                    function(err){
+                        if(err) { throw err; }
+                        console.log("New position updated"); 
+                        startApp();
+                    });
+                });
+        });        
+    });
+            
+}
+
+//////////DELETE DATA///////////
