@@ -267,6 +267,10 @@ function view() {
                     message: "Employees"
                 },
                 {
+                    name: "employeeManager",
+                    message: "Employees By Manager"
+                },
+                {
                     name: "role",
                     message: "Roles"
                 },
@@ -280,6 +284,9 @@ function view() {
         switch (answer.viewOptions) {
             case "employee":
                 viewEmployees();
+                break;
+            case "employeeManager":
+                viewEmployeesByManager();
                 break;
             case "role":
                 viewRoles();
@@ -301,6 +308,18 @@ function viewEmployees(){
             startApp();
         })
 }
+function viewEmployeesByManager() {
+    let managersQuery = `select CONCAT(e.first_name," ",e.last_name) as Employee_Name , CONCAT(m.first_name," ",m.last_name) as Employee_Manager
+    from employee e, employee m
+    where e.manager_id = m.id order by Employee_Manager`;
+    connection.query(managersQuery,function(err,result){
+        if(err) { throw err }
+        console.table(result);
+        startApp();
+    });
+
+}
+
 function viewDepartments() {
     connection.query("select name Department from department",function(err,result){
         if(err) { throw err }
