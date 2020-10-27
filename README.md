@@ -13,7 +13,7 @@
   ## Installation
   database structure is included. You need MySQL to create the DB and rum "npm install" to have all the packages before running the app.
   ## Usage
-  run the app using "node app". The main options list will pop up after each action. Choose exit to end the app. Otherwise, you can view/add/update/delete data from the DB.
+  run the app using "node app". The main options list will pop up after each action. Choose exit to end the app. Otherwise, you can view/add/update/delete data from the DB. Watch a demp [here.](https://drive.google.com/file/d/1y7AwhPkyKDAI01lhMzAL5rN222IKgg3Y/view)
   ## License
   None
   ## Contributing
